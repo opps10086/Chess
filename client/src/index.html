@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NL象棋 - 中国象棋在线对战平台</title>
+    <meta name="description" content="NL象棋是一个功能完整的中国象棋在线对战平台，支持实时联机对战、预约牌局、排行榜等功能">
+    <meta name="keywords" content="中国象棋,象棋,在线象棋,象棋对战,象棋游戏">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* 加载动画 */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+        .loading-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 2rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #fff;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 隐藏加载动画 */
+        .loading-container.hidden {
+            display: none;
+        }
+
+        /* 主应用容器 */
+        #app {
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #app.loaded {
+            opacity: 1;
+        }
+
+        /* 古风主题变量 */
+        :root {
+            --primary-color: #8B4513;
+            --primary-light: #CD853F;
+            --primary-dark: #654321;
+            --secondary-color: #DAA520;
+            --background-color: #FDF5E6;
+            --surface-color: #FFFEF7;
+            --text-primary: #2F1B14;
+            --text-secondary: #8B7355;
+            --border-color: #D2B48C;
+            --shadow-light: 0 2px 8px rgba(139, 69, 19, 0.1);
+            --shadow-medium: 0 4px 16px rgba(139, 69, 19, 0.15);
+            --shadow-heavy: 0 8px 32px rgba(139, 69, 19, 0.2);
+        }
+
+        /* Element Plus 主题覆盖 */
+        .el-button--primary {
+            --el-button-bg-color: var(--primary-color);
+            --el-button-border-color: var(--primary-color);
+        }
+
+        .el-button--primary:hover {
+            --el-button-hover-bg-color: var(--primary-light);
+            --el-button-hover-border-color: var(--primary-light);
+        }
+
+        /* 棋盘样式预设 */
+        .chess-board {
+            background: linear-gradient(45deg, #DEB887 25%, transparent 25%), 
+                        linear-gradient(-45deg, #DEB887 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #DEB887 75%), 
+                        linear-gradient(-45deg, transparent 75%, #DEB887 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 4px solid var(--primary-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .loading-logo {
+                font-size: 2rem;
+            }
+            
+            .loading-spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 3px;
+            }
+        }
+
+        /* 暗色模式支持 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1a1a1a;
+                --surface-color: #2d2d2d;
+                --text-primary: #e0e0e0;
+                --text-secondary: #b0b0b0;
+                --border-color: #404040;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div id="loading" class="loading-container">
+        <div class="loading-logo">NL象棋</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载中...</div>
+    </div>
+
+    <!-- 主应用 -->
+    <div id="app">
+        <!-- Vue应用将在这里渲染 -->
+        <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-size: 1.2rem; color: var(--text-secondary);">
+            应用正在初始化...
+        </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    
+    <!-- Axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- 应用脚本 -->
+    <script type="module">
+        // 导入主应用
+        import('./js/app.js').then(module => {
+            // 隐藏加载动画
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('app').classList.add('loaded');
+            
+            // 启动应用
+            module.startApp();
+        }).catch(error => {
+            console.error('应用启动失败:', error);
+            document.querySelector('.loading-text').textContent = '应用启动失败，请刷新页面重试';
+        });
+    </script>
+
+    <!-- 错误处理 -->
+    <script>
+        // 全局错误处理
+        window.addEventListener('error', function(event) {
+            console.error('全局错误:', event.error);
+            // 可以在这里添加错误上报逻辑
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未处理的Promise拒绝:', event.reason);
+            // 可以在这里添加错误上报逻辑
+        });
+
+        // 检查浏览器兼容性
+        if (!window.Promise || !window.fetch) {
+            alert('您的浏览器版本过低，请升级到最新版本以获得最佳体验');
+        }
+    </script>
+</body>
+</html>
